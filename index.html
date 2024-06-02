@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق الملاحظات</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            padding: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .note {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .note-buttons {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>تطبيق الملاحظات</h1>
+    <textarea id="noteText" placeholder="اكتب ملاحظتك هنا..."></textarea>
+    <button onclick="saveNote()">احفظ الملاحظة</button>
+    <div id="notesContainer"></div>
+
+    <script>
+        function saveNote() {
+            const noteText = document.getElementById('noteText').value;
+            if (noteText.trim() !== "") {
+                const notes = JSON.parse(localStorage.getItem('notes')) || [];
+                notes.push(noteText);
+                localStorage.setItem('notes', JSON.stringify(notes));
+                document.getElementById('noteText').value = '';
+                displayNotes();
+            }
+        }
+
+        function editNote(index) {
+            const notes = JSON.parse(localStorage.getItem('notes'));
+            document.getElementById('noteText').value = notes[index];
+            deleteNote(index);
+        }
+
+        function deleteNote(index) {
+            const notes = JSON.parse(localStorage.getItem('notes'));
+            notes.splice(index, 1);
+            localStorage.setItem('notes', JSON.stringify(notes));
+            displayNotes();
+        }
+
+        function displayNotes() {
+            const notesContainer = document.getElementById('notesContainer');
+            const notes = JSON.parse(localStorage.getItem('notes')) || [];
+            notesContainer.innerHTML = '';
+            notes.forEach((note, index) => {
+                const noteElement = document.createElement('div');
+                noteElement.className = 'note';
+                noteElement.innerHTML = `
+                    <div>${note}</div>
+                    <div class="note-buttons">
+                        <button onclick="editNote(${index})">تعديل</button>
+                        <button onclick="deleteNote(${index})">حذف</button>
+                    </div>
+                `;
+                notesContainer.appendChild(noteElement);
+            });
+        }
+
+        window.onload = function() {
+            displayNotes();
+        }
+    </script>
+</body>
+</html>
